@@ -411,6 +411,7 @@ class HostConfig(dict):
 
         if links is not None:
             self['Links'] = normalize_links(links)
+            print("XXX: Links:", self['Links'])
 
         if isinstance(lxc_conf, dict):
             formatted = []

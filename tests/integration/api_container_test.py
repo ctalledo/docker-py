@@ -20,6 +20,7 @@ from ..helpers import (
     skip_if_desktop,
 )
 from .base import TEST_IMG, BaseAPIIntegrationTest
+import time
 
 
 class ListContainersTest(BaseAPIIntegrationTest):
@@ -66,7 +67,7 @@ class CreateContainerTest(BaseAPIIntegrationTest):
 
     def test_create_with_links(self):
         res0 = self.client.create_container(
-            TEST_IMG, 'cat',
+            TEST_IMG, 'tail -f /dev/null',
             detach=True, stdin_open=True,
             environment={'FOO': '1'})
 
@@ -76,7 +77,7 @@ class CreateContainerTest(BaseAPIIntegrationTest):
         self.client.start(container1_id)
 
         res1 = self.client.create_container(
-            TEST_IMG, 'cat',
+            TEST_IMG, 'tail -f /dev/null',
             detach=True, stdin_open=True,
             environment={'FOO': '1'})
 
@@ -104,8 +105,11 @@ class CreateContainerTest(BaseAPIIntegrationTest):
         self.tmp_containers.append(container3_id)
         self.client.start(container3_id)
         assert self.client.wait(container3_id)['StatusCode'] == 0
-
         logs = self.client.logs(container3_id).decode('utf-8')
+
+        # TODO: assertion firing here; logs should have contained the env vars below but they don't. Why? Are they getting cut short somehow?
+        print("XXX: logs: %s" % logs)
+
         assert f'{link_env_prefix1}_NAME=' in logs
         assert f'{link_env_prefix1}_ENV_FOO=1' in logs
         assert f'{link_env_prefix2}_NAME=' in logs
